@@ -113,6 +113,9 @@ angular.module( 'isteven-multi-select', ['ng'] ).directive( 'istevenMultiSelect'
             // A little hack so that AngularJS ng-repeat can loop using start and end index like a normal loop
             // http://stackoverflow.com/questions/16824853/way-to-ng-repeat-defined-number-of-times-instead-of-repeating-over-array
             $scope.numberToArray = function( num ) {
+                if (num == null || isNaN(num)) {
+                  num = 0
+                }
                 return new Array( num );   
             }
 
@@ -1088,6 +1091,7 @@ angular.module( 'isteven-multi-select', ['ng'] ).directive( 'istevenMultiSelect'
                         'ng-mouseleave="removeFocusStyle( tabIndex );"> '+
                         // this is the spacing for grouped items
                         '<div class="acol" ng-if="item[ spacingProperty ] > 0" ng-repeat="i in numberToArray( item[ spacingProperty ] ) track by $index">'+                        
+                        '<div class="acol" ng-if="item[ \'level\' ] > 0" ng-repeat="i in numberToArray( item[ \'level\' ] * 2 ) track by $index">' +
                     '</div>  '+        
                     '<div class="acol">'+
                         '<label>'+                                
