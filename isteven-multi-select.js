@@ -1091,7 +1091,7 @@ angular.module( 'isteven-multi-select', ['ng'] ).directive( 'istevenMultiSelect'
                         'ng-mouseleave="removeFocusStyle( tabIndex );"> '+
                         // this is the spacing for grouped items
                         '<div class="acol" ng-if="item[ spacingProperty ] > 0" ng-repeat="i in numberToArray( item[ spacingProperty ] ) track by $index">'+                        
-                        '<div class="acol" ng-if="item[ \'level\' ] > 0" ng-repeat="i in numberToArray( item[ \'level\' ] * 2 ) track by $index"></div>' +
+                        // '<div class="acol" ng-if="item[ \'level\' ] > 0" ng-repeat="i in numberToArray( item[ \'level\' ] * 2 ) track by $index"></div>' +
                     '</div>  '+        
                     '<div class="acol">'+
                         '<label>'+                                
