@@ -432,7 +432,7 @@ angular.module( 'isteven-multi-select', ['ng'] ).directive( 'istevenMultiSelect'
 
                     // Multiple
                     else {
-                        $scope.filteredModel[ index ][ $scope.tickProperty ]   = !$scope.filteredModel[ index ][ $scope.tickProperty ];
+                        $scope.filteredModel[ index ][ $scope.tickProperty ] = !$scope.filteredModel[ index ][ $scope.tickProperty ];
                     }
 
                     // we refresh input model as well
@@ -470,6 +470,32 @@ angular.module( 'isteven-multi-select', ['ng'] ).directive( 'istevenMultiSelect'
                     $scope.toggleCheckboxes( e );       
                 }
             }     
+
+            
+            $scope.toggleTickProperty = function(currentState, descendantsEnabled, hasDescendants) {
+              console.log('params: ', currentState, descendantsEnabled, hasDescendants)
+              $scope.tickOptions
+              let validOptions = 2;
+              if (descendantsEnabled && hasDescendants) {
+                validOptions = validOptions + 1;
+              }
+              let index = $scope.getCurrentOptionIndex(currentState);
+
+              let bumpOption = (index + 1) % validOptions;
+
+              return bumpOption;
+            }
+            $scope.getCurrentOptionIndex = function(selectionOption) {
+              const opts = $scope.tickOptions;
+              switch (selectionOption) {
+                case opts.Unchecked:
+                  return 0;
+                case opts.Checked:
+                  return 1;
+                case opts.CheckedWithDescendants:
+                  return 2;
+              }
+            }
 
             // update $scope.outputModel
             $scope.refreshOutputModel = function() {            
@@ -952,6 +978,12 @@ angular.module( 'isteven-multi-select', ['ng'] ).directive( 'istevenMultiSelect'
             $scope.icon.reset      = '&#8630;';     // undo icon            
             // this one is for the selected items
             $scope.icon.tickMark   = '&#10003;';    // a tick icon 
+
+            $scope.tickOptions = {
+              Unchecked = 'Unchecked',
+              Checked = 'Checked',
+              CheckedWithDescendants = 'CheckedWithDescendants'
+            }
 
             // configurable button labels                       
             if ( typeof attrs.translation !== 'undefined' ) {
