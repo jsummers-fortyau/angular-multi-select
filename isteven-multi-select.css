@@ -313,7 +313,7 @@
 }
 
 .itemrow.selectedByParent {
-    border-left: 3px solid lightblue !important;
+    border-left: 3px solid #2EAFD9 !important;
 }
 
 /* hide the original HTML checkbox away */
