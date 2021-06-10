@@ -26,6 +26,10 @@
     min-width: 12px;
 }
 
+.multiSelect .acol.item-name {
+    flex-grow: 1
+}
+
 /* ! */
 .multiSelect .inlineBlock {
     display: inline-block;
@@ -201,7 +205,7 @@
 
 /* item labels */
 .multiSelect .multiSelectItem {
-    display: block;
+    display: flex;
     padding: 3px;
     color: #444;       
     white-space: nowrap;
@@ -269,9 +273,47 @@
 .multiSelect .tickMark {
     display:inline-block; 
     position: absolute; 
-    right: 10px; 
-    top: 7px;
-    font-size: 10px;          
+    right: 8px;
+    top: 4px;
+    font-size: 16px;
+}
+
+.item-label {
+    max-width: 620px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow-x: hidden;
+}
+
+.check-status-description {
+    text-align: right;
+    min-width: 150px;
+}
+.check-status-description > span {
+    font-size: 11px;
+    /* color: #929292; */
+    visibility: hidden;
+}
+.multiSelect .multiSelectItem:hover .check-status-description > span {
+  visibility: visible;
+}
+
+.check-status-indicator {
+    width:25px;
+}
+.check-status-indicator .unchecked {
+    visibility: hidden;
+}
+.multiSelect .multiSelectItem:hover .check-status-indicator .unchecked {
+    visibility: visible;
+}
+
+.itemrow {
+  border-left: 3px solid white !important;
+}
+
+.itemrow.selectedByParent {
+    border-left: 3px solid lightblue !important;
 }
 
 /* hide the original HTML checkbox away */
