@@ -519,14 +519,17 @@ angular.module('isteven-multi-select', ['ng']).directive('istevenMultiSelect', [
 
             $scope.bumpTickProperty = function (currentState, descendantsEnabled, hasDescendants) {
                 currentState = currentState || $scope.tickOptions.Unchecked;
-                $scope.tickOptions
+                // $scope.tickOptions
                 let validOptions = 2;
                 if (descendantsEnabled && hasDescendants) {
                     validOptions = validOptions + 1;
                 }
                 let index = $scope.getIndexfromOption(currentState);
 
-                let selectedIndex = (index + 1) % validOptions;
+                let selectedIndex = index - 1
+                if (selectedIndex < 0) {
+                    selectedIndex = validOptions - 1
+                }
 
                 return $scope.getOptionFromIndex(selectedIndex);
             }
