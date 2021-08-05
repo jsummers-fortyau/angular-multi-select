@@ -500,6 +500,9 @@ angular.module('isteven-multi-select', ['ng']).directive('istevenMultiSelect', [
             }
             $scope.anyParentHasProperty = function(id, property, value, isHead = false) {
                 let item = $scope.inputModel.find(e => e.entryId == id)
+                if (!item) {
+                    return false
+                }
                 let parentId = item.parentId
 
                 if (!isHead) {
