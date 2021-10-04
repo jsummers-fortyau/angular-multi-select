@@ -197,6 +197,18 @@ angular.module('isteven-multi-select', ['ng']).directive('istevenMultiSelect', [
 
                 $scope.filteredModel.reverse();
 
+                if ($scope.inputLabel.labelFilter && $scope.inputLabel.labelFilter.length > 0) {
+                    let parentIds = $scope.filteredModel.filter(fm => fm.parentId != null).map(fm => fm.parentId)
+                    if (Array.isArray(parentIds) && parentIds.length > 0) {
+                        let allParentIds = $scope.recursivelySelectParents(parentIds)
+                        let entryIds = $scope.filteredModel.map(fm => fm.entryId)
+                        let excludedParentIdsOnly = allParentIds.filter(pid => !entryIds.includes(pid))
+                        let allParents = $scope.inputModel.filter(im => excludedParentIdsOnly.includes(im.entryId))
+
+                        $scope.filteredModel = $scope.recursivelyPlaceParentsAboveResults(allParents, $scope.filteredModel)
+                    }
+                }
+
                 $timeout(function () {
 
                     $scope.getFormElements();
@@ -227,6 +239,51 @@ angular.module('isteven-multi-select', ['ng']).directive('istevenMultiSelect', [
                     }
                 }, 0);
             };
+
+            $scope.recursivelySelectParents = function (parentIds) {
+              // If there is a heirarchy- also show all parents for children that are shown
+              // let parentIds = $scope.filteredModel.filter(fm => fm.parentId != null).map(fm => fm.parentId)
+              let cumulativeIds = []
+              if (Array.isArray(parentIds) && parentIds.length > 0) {
+                let currentLevelIds = $scope.inputModel.filter(im => im.parentId != null && parentIds.includes(im.entryId)).map(im => im.parentId);
+
+                cumulativeIds = $scope.recursivelySelectParents(currentLevelIds)
+                cumulativeIds = cumulativeIds.concat(parentIds)
+              }
+              return cumulativeIds
+            }
+
+            $scope.recursivelyPlaceParentsAboveResults = function (parents, filteredModel) {
+                let currentLevel = Math.max.apply(Math, parents.map(p => p.level))
+                let indexes = []
+                let parentIds = parents.filter(p => p.level == currentLevel).map(p => p.entryId)
+                filteredModel.forEach(function (fm, i) {
+                    let found = indexes.find(i => i.parentId == fm.parentId)
+                    if (parentIds.includes(fm.parentId) && !found) {
+                        indexes.push({ index: i, parentId: fm.parentId })
+                    }
+                });
+
+                if (indexes.length > 0) {
+                    indexes = indexes.sort(function (a, b) { return b.index - a.index });
+                    let matched = []
+                    indexes.forEach(i => {
+                        let parent = parents.find(p => p.entryId == i.parentId)
+                        filteredModel.splice(i.index, 0, parent);
+                        matched.push(i.parentId)
+
+                    })
+                    indexes = indexes.filter(i => !matched.includes(i.parentId))
+                    parents = parents.filter(p => !matched.includes(p.entryId))
+
+                }
+                
+                if (parents.length > 0) {
+                    $scope.recursivelyPlaceParentsAboveResults(parents, filteredModel)
+                }
+
+                return filteredModel
+            }
 
             // List all the input elements. We need this for our keyboard navigation.
             // This function will be called everytime the filter is updated. 
@@ -437,7 +494,7 @@ angular.module('isteven-multi-select', ['ng']).directive('istevenMultiSelect', [
                         var newTickState = $scope.bumpTickProperty(currentTickState, $scope.enableDescendantChecking, $scope.filteredModel[index]['hasDescendants']);
                         $scope.filteredModel[index][$scope.tickProperty] = newTickState;
 
-                        if ($scope.enableDescendantChecking) {                            
+                        if ($scope.enableDescendantChecking) {
                             if (newTickState == $scope.tickOptions.CheckedWithDescendants) {
                                 $scope.recursivelyMarkChildren(entryId, 'selectedByParent', true)
                             } else if (!$scope.anyParentHasProperty(entryId, $scope.tickProperty, $scope.tickOptions.CheckedWithDescendants)) {

@@ -74,6 +74,12 @@
 .multiSelect .buttonLabel {
     display: inline-block;
     padding: 5px 0px 5px 0px; 
+    overflow-y: clip;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    max-width: 93%; /*IE FALLBACK*/
+    max-width: calc(100% - 10px);
+    vertical-align: middle;
 }
 
 /* downward pointing arrow */
