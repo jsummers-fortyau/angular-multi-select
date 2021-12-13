@@ -47,6 +47,7 @@ angular.module('isteven-multi-select', ['ng']).directive('istevenMultiSelect', [
             // settings based on attribute
             isDisabled: '=',
             enableDescendantChecking: '=',
+            enableGranularChecking: '=',
             descendantsName: '=',
 
             placeholder: '=',
@@ -500,6 +501,26 @@ angular.module('isteven-multi-select', ['ng']).directive('istevenMultiSelect', [
                             } else if (!$scope.anyParentHasProperty(entryId, $scope.tickProperty, $scope.tickOptions.CheckedWithDescendants)) {
                                 $scope.recursivelyMarkChildren(entryId, 'selectedByParent')
                             }
+                        } else if ($scope.enableGranularChecking) {
+                            let selfChecked = currentTickState === 'Checked';
+                            let hasDescendants = $scope.filteredModel[index]['hasDescendants']
+                            let allChildrenChecked = !$scope.anyChildHasProperty(entryId, $scope.tickProperty, [undefined, $scope.tickOptions.Unchecked]);
+                            let anyChildrenUnchecked = $scope.anyChildHasProperty(entryId, $scope.tickProperty, [undefined, $scope.tickOptions.Unchecked]);
+                            if (!selfChecked && hasDescendants && allChildrenChecked) { // if self is unchecked and all children are checked
+                                // deselect all children
+                                $scope.recursivelyMarkChildren(entryId, $scope.tickProperty, $scope.tickOptions.Unchecked)
+                                $scope.filteredModel[index][$scope.tickProperty] = $scope.tickOptions.Unchecked
+                            } else if (selfChecked && (!hasDescendants || allChildrenChecked)) { // if self is checked and all children are checked
+                                // deselect self
+                                $scope.filteredModel[index][$scope.tickProperty] = $scope.tickOptions.Unchecked
+                            } else if (selfChecked && hasDescendants && anyChildrenUnchecked) { // if self is checked and any children are un-checked
+                                // select all children
+                                $scope.recursivelyMarkChildren(entryId, $scope.tickProperty, $scope.tickOptions.Checked)
+                                $scope.filteredModel[index][$scope.tickProperty] = $scope.tickOptions.Checked
+                            } else if (!selfChecked) { // if self is unchecked
+                                // select self
+                                $scope.filteredModel[index][$scope.tickProperty] = $scope.tickOptions.Checked
+                            }
                         }
                         // $scope.filteredModel[ index ][ $scope.tickProperty ] = !$scope.filteredModel[ index ][ $scope.tickProperty ];
                     }
@@ -571,6 +592,23 @@ angular.module('isteven-multi-select', ['ng']).directive('istevenMultiSelect', [
                 if (parentId) {
                     return $scope.anyParentHasProperty(parentId, property, value)
                 }
+            }
+
+            $scope.anyChildHasProperty = function (id, property, value, isHead = false) {
+                let descendants = $scope.inputModel.filter(e => e.parentId == id)
+                let anyChildHasProperty = false;
+                descendants.forEach(d => {
+                    if (Array.isArray(value)) {
+                        anyChildHasProperty = value.includes(d[property])
+                    } else
+                        if (d[property] == value) {
+                            anyChildHasProperty = true
+                        }
+
+                    anyChildHasProperty = anyChildHasProperty || $scope.anyChildHasProperty(d.entryId, property, value)
+                })
+
+                return anyChildHasProperty
             }
 
             $scope.isMultiSelect = function () {
@@ -683,10 +721,11 @@ angular.module('isteven-multi-select', ['ng']).directive('istevenMultiSelect', [
 
                     if ($scope.more === true) {
                         // https://github.com/isteven/angular-multi-select/pull/16
-                        if (tempMaxLabels > 0) {
-                            $scope.varButtonLabel += ', ... ';
-                        }
-                        $scope.varButtonLabel += '(' + $scope.outputModel.length + ')';
+                        // if (tempMaxLabels > 0) {
+                        //     $scope.varButtonLabel += ', ... ';
+                        // }
+                        // $scope.varButtonLabel += '(' + $scope.outputModel.length + ')';
+                        $scope.varButtonLabel = '' + $scope.outputModel.length + ' selected'
                     }
                 }
                 $scope.varButtonLabel = $sce.trustAsHtml($scope.varButtonLabel + '<span class="caret"></span>');
